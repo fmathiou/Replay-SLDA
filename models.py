@@ -94,13 +94,15 @@ class SLDA(nn.Module):
                 self.b[label] = -1/2 * torch.matmul(mean_feature, torch.matmul(self.precision_matrix, mean_feature))
 
 def resNet18_model(output_classes, pretrained=True, freeze=True, bn_eval=True):
-    """Create a ResNet-18 architecture model.
+    """Create a ResNet-18 CNN.
 
     Args:
         output_classes (int): Number of nodes in the final layer.
-        pretrained (bool, optional): If true uses ImageNet weights. Defaults to True.
-        freeze (bool, optional): If true freezes networks weights (besides classification layer). Defaults to True.
-        bn_eval (bool, optional): If true sets batch normalization layers to evaluation mode. Defaults to True.
+        pretrained (bool, optional): If true, loads ImageNet weights. Defaults to True.
+        freeze (bool, optional): If true, freezes networks weights 
+            (besides classification layer). Defaults to True.
+        bn_eval (bool, optional): If true sets batch normalization layers 
+            to evaluation mode. Defaults to True.
 
     Returns:
         ResNet: ResNet model.

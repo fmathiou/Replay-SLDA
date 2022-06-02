@@ -10,8 +10,8 @@ class Memory(Dataset):
     Attributes:
         max_samples (int): Maximum allowed number of samples to be stored.
         reservoir (list): Contains stored instances in the form [instance, label].
-        seen_samples (int): Number of instances ecnountered.
-        transform (Tansform): Transformation operation when replaying.
+        seen_samples (int): Number of instances ecnountered so far.
+        transform (Tansform): Transformation operation when replaying data.
     """
     
     def __init__(self, max_samples=200):
@@ -63,7 +63,7 @@ class Memory(Dataset):
             labels = torch.stack(labels)
             
         else:
-            samples = torch.tensor([])
-            labels = torch.tensor([])
+            samples = float('NaN')
+            labels = float('NaN')
             
         return samples, labels
