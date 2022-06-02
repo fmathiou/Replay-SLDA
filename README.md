@@ -13,20 +13,17 @@ To use rehearsal training, simply create a ResNet-18 model using resNet18_model 
 ```
 model = resNet18_model(output_classes)
 rehearsal_train(model, trainset,...)
-
 ```
 The slda_train  algorithm accepts an SLDA model for training. This must be created from a CNN model as follows:
 ```
 model = resNet18_model(output_classes)
 slda_model = SLDA(model)
 slda_train(slda_model, trainset,...)
-
 ```
 The Replay-SLDA algorithm accepts a CNN model as input and returns the final SLDA model.
 ```
 model = resNet18_model(output_classes)
 slda_model = replay_slda_v2(model, trainset,...)
-
 ```
 ## Results on CIFAR-10 
 <img src="./Images/cifar10_comparison.jpg" width=50% height=50%>
