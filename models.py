@@ -17,17 +17,18 @@ class SLDA(nn.Module):
 
     """
 
-    def __init__(self, base_model, output_classes=10):
+    def __init__(self, base_model):
         """Model constructor.
 
         Args:
             base_model (Module): Model to be used as feature extractor.
-            output_classes (int, optional): . Defaults to 10.
+
         """
         
         super(SLDA, self).__init__()
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         fc_input = base_model.fc.in_features
+        output_classes = base_model.fc.out_features
         self.model = nn.Sequential(*list(base_model.children())[:-1])
         self.model = self.model.to(self.device)
         self.W = torch.tensor(np.zeros((output_classes, fc_input))).float()
