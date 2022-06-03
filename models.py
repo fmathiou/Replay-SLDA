@@ -94,7 +94,7 @@ class SLDA(nn.Module):
                 self.W[label] = torch.matmul(self.precision_matrix, mean_feature)
                 self.b[label] = -1/2 * torch.matmul(mean_feature, torch.matmul(self.precision_matrix, mean_feature))
 
-def resNet18_model(output_classes, pretrained=True, freeze=True, bn_eval=True):
+def resNet18_model(output_classes, pretrained=True, freeze=False, bn_eval=True):
     """Create a ResNet-18 CNN.
 
     Args:

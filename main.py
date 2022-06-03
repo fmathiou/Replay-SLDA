@@ -6,9 +6,9 @@ from training import *
 
 def main():
     data_dir = './data'
-    trainset = datasets.CIFAR100(root=data_dir, train=True, 
+    training_set = datasets.CIFAR100(root=data_dir, train=True, 
                                  transform=transforms.ToTensor())
-    output_classes = len(set(trainset.targets))
+    output_classes = len(set(training_set.targets))
     test_transform = transforms.Compose([transforms.ToTensor(),
                                          transforms.Resize(256),
                                          transforms.CenterCrop(224), 
@@ -23,14 +23,13 @@ def main():
                                     transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                                          std=[0.229, 0.224, 0.225])]) 
     # Train the model
-    model = resNet18_model(output_classes, freeze=False)
+    model = resNet18_model(output_classes)
     optimizer = optim.SGD(model.parameters(), lr=0.001)
-    sl_model = replay_slda_v2(model, trainset, optimizer, batch_size=10, 
-                              batch_loops=1, max_samples=600,
-                              replay_size=10, output_classes=output_classes,
+    slda_model = replay_slda_v2(model, training_set, optimizer, batch_size=10, 
+                              batch_loops=1, max_samples=600, replay_size=10, 
                               transform=train_transform)
 
-    accuracy = evaluate(sl_model, testset)
+    accuracy = evaluate(slda_model, testset)
     print(f'Accuracy of the model on the test set: {accuracy}%')
 
 if __name__ == '__main__':

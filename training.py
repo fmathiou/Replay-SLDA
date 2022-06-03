@@ -7,35 +7,35 @@ from torchvision import transforms
 from memory import Memory
 from models import SLDA
 
-def rehearsal_train(model, trainset, optimizer, batch_size, batch_loops, 
+def rehearsal_train(model, training_set, optimizer, batch_size, batch_loops, 
                     max_samples, replay_size, transform, replay=True, 
                     criterion = None, print_interval = 1/4):
     """Train the 'model' sequentially using rehearsal.
 
-    The 'model' is trained through rehearsal on the 'trainset' which is ordered
+    The 'model' is trained through rehearsal on the 'training_set' which is ordered
     by class to represent a non-i.i.d. stream of data. If 'replay' is set to
     False, this corresponds to naive continual traning on the stream.
 
     Args:
         model (Module): Model to be trained.
-        trainset (Dataset): Training set.
+        training_set (Dataset): Training set.
         optimizer (Optimizer): Optimization algorithm.
         batch_size (int): Number of samples in the batch.
         batch_loops (int): Number of optimization steps on a given batch.
         replay (bool): If true activates rehearsal. Defaults to True.
         max_samples (int): Maximum number of samples stored for rehearsal.
         replay_size (int): Number of samples replayed from memory.
-        transform (Transform or Compose): Transformation operation on 'trainset' samples.
+        transform (Transform or Compose): Transformation operation on 'training_set' samples.
         criterion (Loss, optional): Loss function. Defaults to None.
         print_interval (float): Fraction for printing info at specified 
-            'trainset' intevrals. Defaults to 1/4.
+            'training_set' intevrals. Defaults to 1/4.
     """
 
     start = time.time()
     if criterion == None:
         criterion = nn.CrossEntropyLoss()
-    sampler = CL_Sampler(trainset)
-    train_loader = DataLoader(trainset, batch_size=batch_size, sampler=sampler)
+    sampler = CL_Sampler(training_set)
+    train_loader = DataLoader(training_set, batch_size=batch_size, sampler=sampler)
     total_batches = len(train_loader)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
@@ -78,19 +78,19 @@ def rehearsal_train(model, trainset, optimizer, batch_size, batch_loops,
     elapsed_time = finish-start
     print(f'Training time: {elapsed_time/60:.2f} minutes')
 
-def slda_train(model, trainset, batch_size, print_interval=1/4):
+def slda_train(model, training_set, batch_size, print_interval=1/4):
     """Perform training with Deep Streaming Linear Discriminant Analysis.
 
     Args:
         model (SLDA): SLDA model to be trained.
-        trainset (Dataset): Training set.
+        training_set (Dataset): Training set.
         batch_size (int): Number of samples in the batch.
         print_interval (float): Fraction for printing info at specified 
-            'trainset' intevrals. Defaults to 1/4.
+            'training_set' intevrals. Defaults to 1/4.
     """
     start = time.time()
-    sampler = CL_Sampler(trainset)
-    train_loader = DataLoader(trainset, batch_size=batch_size, sampler=sampler)
+    sampler = CL_Sampler(training_set)
+    train_loader = DataLoader(training_set, batch_size=batch_size, sampler=sampler)
     total_batches = len(train_loader)
     transform = transforms.Compose([transforms.Resize(256),
                                     transforms.CenterCrop(224),
@@ -116,24 +116,23 @@ def slda_train(model, trainset, batch_size, print_interval=1/4):
     elapsed_time = finish-start
     print(f'Training time: {elapsed_time/60:.2f} minutes')
 
-def replay_slda_v2(model, trainset, optimizer, output_classes, batch_size, 
+def replay_slda_v2(model, training_set, optimizer, batch_size, 
                    batch_loops, max_samples, replay_size, transform,
                     criterion = None, print_interval=1/4):
     """Continual training using Replay-SLDA (v2) algorithm.
 
     Args:
         model (Module): Model to be trained.
-        trainset (Dataset): Training set.
+        training_set (Dataset): Training set.
         optimizer (Optimizer): Optimization algorithm.
-        output_classes (int): Number of ouptut classes.
         batch_size (int): Number of samples in the batch.
         batch_loops (int): Number of optimization steps on a given batch.
         max_samples (int): Maximum number of samples stored for rehearsal.
         replay_size (int): Number of samples replayed from memory.
-        transform (Transform or Compose): Transformation operation on 'trainset' samples.
+        transform (Transform or Compose): Transformation operation on 'training_set' samples.
         criterion (Loss, optional): Loss function. Defaults to None.
         print_interval (float): Fraction for printing info at specified 
-            'trainset' intevrals. Defaults to 1/4.
+            'training_set' intevrals. Defaults to 1/4.
 
     Returns:
         SLDA: Final model.
@@ -141,8 +140,8 @@ def replay_slda_v2(model, trainset, optimizer, output_classes, batch_size,
     start = time.time()
     if criterion == None:
         criterion = nn.CrossEntropyLoss()
-    sampler = CL_Sampler(trainset)
-    train_loader = DataLoader(trainset, batch_size=batch_size, sampler=sampler)
+    sampler = CL_Sampler(training_set)
+    train_loader = DataLoader(training_set, batch_size=batch_size, sampler=sampler)
     total_batches = len(train_loader)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
@@ -175,11 +174,11 @@ def replay_slda_v2(model, trainset, optimizer, output_classes, batch_size,
         if i % n == n-1:
             print('Mini-batch:', f'{i + 1}/{total_batches}')
     
-    # Train on memory instances
+    # Create SLDA model and train on memory instances
     with torch.no_grad():
         print('Training classification layer on the memory instances through SLDA...')
         memory_loader = DataLoader(memory, batch_size=10)
-        slda_model = SLDA(base_model=model,output_classes=output_classes)
+        slda_model = SLDA(base_model=model)
         for i, data in enumerate(memory_loader, 0):
             inputs, labels =  data[0].to(device), data[1].to(device)
             transformed_inputs = transform(inputs.clone())
