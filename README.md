@@ -9,21 +9,21 @@ et al., 2016) datasets. In all three, it achieved higher final accuracy compared
 ## Usage
 Set up relevent parameters in main.py and run the file. Different training algorithms can be selected from training.py file. Examples on how to use each training algorithm are shown below:
 
-To use rehearsal training, simply create a ResNet-18 model using resNet18_model function and pass it as an argument to the training algorithm. The code has been implemented with a ResNet-18 CNN but different architectures could be used as well.
+To use rehearsal training, simply create a ResNet-18 model using the resNet18_model function and pass it as an argument to the training algorithm. The code has been implemented with a ResNet-18 CNN but different architectures could be used as well.
 ```
 model = resNet18_model(output_classes)
-rehearsal_train(model, trainset,...)
+rehearsal_train(model, training_set,...)
 ```
-The slda_train  algorithm accepts an SLDA model for training. This must be created from a CNN model as follows:
+The SLDA training algorithm accepts an SLDA model. This must be created from the ResNet-18 model as follows:
 ```
 model = resNet18_model(output_classes)
 slda_model = SLDA(model)
-slda_train(slda_model, trainset,...)
+slda_train(slda_model, training_set,...)
 ```
-The Replay-SLDA algorithm accepts a CNN model as input and returns the final SLDA model.
+The Replay-SLDA algorithm returns a new model contrary to the previous algorithms. This is the final model trained both with rehearsal and SLDA. Again, use the resNet18_model function to create a model and pass it to the algorithm. 
 ```
 model = resNet18_model(output_classes)
-slda_model = replay_slda_v2(model, trainset,...)
+slda_model = replay_slda_v2(model, training_set,...)
 ```
 ## Results on CIFAR-10 
 <img src="./Images/cifar10_comparison.jpg" width=50% height=50%>
