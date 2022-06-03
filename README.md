@@ -7,7 +7,7 @@ et al., 2016) datasets. In all three, it achieved higher final accuracy compared
 - Torchvision=0.9.1
 - NumPy=1.22.4
 ## Usage
-Set up relevent parameters in main.py and run the file. Different training algorithms can be selected from training.py file. Examples on how to use each training algorithm are shown below:
+Set up relevent parameters in `main.py` and run the file. Different training algorithms can be selected from `training.py file`. Examples on how to use each training algorithm are shown below:
 
 To use rehearsal training, simply create a ResNet-18 model using the resNet18_model function and pass it as an argument to the training algorithm. The code has been implemented with a ResNet-18 CNN but different architectures could be used as well.
 ```
