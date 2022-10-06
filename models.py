@@ -108,7 +108,11 @@ def resNet18_model(output_classes, pretrained=True, freeze=False, bn_eval=True):
     Returns:
         ResNet: ResNet model.
     """
-    model = models.resnet18(pretrained=pretrained)     
+    if (pretrained == True):
+        model = models.resnet18(weights='DEFAULT')
+    else:
+        model = models.resnet18()
+        
     if (freeze == True):
         for param in model.parameters():
             param.requires_grad = False
