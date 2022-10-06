@@ -3,7 +3,7 @@ This is a PyTorch implementation of the Replay-SLDA algorithm developed for my m
 et al., 2016) datasets. In all three, it achieved higher final accuracy than the original SLDA algorithm for memory sizes corresponding to 20 samples per class and above.
 
 <p align="center">
-  <img src="./Images/training_illustration.png" width=95% height=100%>
+  <img src="./Images/training_illustration.png" width=100% height=100%>
 </p>
 
 ## Usage
