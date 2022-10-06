@@ -8,7 +8,7 @@ from memory import Memory
 from models import SLDA
 
 def rehearsal_train(model, training_set, optimizer, batch_size, batch_loops, 
-                    max_samples, replay_size, transform, replay=True, 
+                    max_samples, replay_size, transform, 
                     criterion = None, print_interval = 1/4):
     """Train the 'model' sequentially using rehearsal.
 
@@ -39,11 +39,9 @@ def rehearsal_train(model, training_set, optimizer, batch_size, batch_loops,
     total_batches = len(train_loader)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
-    if (replay == True): 
-        print('Rehearsal-based training on the stream...')
-        memory = Memory(max_samples)
-    else:
-        print('Naive continual training on the stream...')
+    print('Rehearsal-based training on the stream...')
+    memory = Memory(max_samples)
+
         
     # Train on stream
     for i, data in enumerate(train_loader, 0):
@@ -51,8 +49,7 @@ def rehearsal_train(model, training_set, optimizer, batch_size, batch_loops,
         transformed_inputs = transform(inputs.clone())
 
         for j in range(batch_loops):
-            if (replay == True):
-                replayed_features, replayed_labels = memory.random_replay(replay_size)
+            replayed_features, replayed_labels = memory.random_replay(replay_size)
             if torch.is_tensor(replayed_features):
                 augmented_inputs = torch.vstack((transformed_inputs, replayed_features))
                 augmented_labels = torch.hstack((labels, replayed_labels))
@@ -65,8 +62,7 @@ def rehearsal_train(model, training_set, optimizer, batch_size, batch_loops,
             loss.backward()
             optimizer.step()
 
-        if (replay == True):
-            memory.reservoir_sampling(inputs, labels)
+        memory.reservoir_sampling(inputs, labels)
             
         # Print info
         n = total_batches*print_interval
@@ -77,14 +73,16 @@ def rehearsal_train(model, training_set, optimizer, batch_size, batch_loops,
     print('Finished training')
     elapsed_time = finish-start
     print(f'Training time: {elapsed_time/60:.2f} minutes')
+    return model
 
-def slda_train(model, training_set, batch_size, print_interval=1/4):
+def slda_train(model, training_set, transform, batch_size, print_interval=1/4):
     """Perform training with Deep Streaming Linear Discriminant Analysis.
 
     Args:
         model (SLDA): SLDA model to be trained.
         training_set (Dataset): Training set.
-        batch_size (int): Number of samples in the batch.
+        batch_size (int): Number of samples in the batch, does not affect 
+            training outcome.
         print_interval (float): Fraction for printing info at specified 
             'training_set' intevrals. Defaults to 1/4.
     """
@@ -92,10 +90,6 @@ def slda_train(model, training_set, batch_size, print_interval=1/4):
     sampler = CL_Sampler(training_set)
     train_loader = DataLoader(training_set, batch_size=batch_size, sampler=sampler)
     total_batches = len(train_loader)
-    transform = transforms.Compose([transforms.Resize(256),
-                                    transforms.CenterCrop(224),
-                                    transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                                         std=[0.229, 0.224, 0.225])])
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     model.to(device)
 
@@ -115,6 +109,7 @@ def slda_train(model, training_set, batch_size, print_interval=1/4):
     print('Finished training')
     elapsed_time = finish-start
     print(f'Training time: {elapsed_time/60:.2f} minutes')
+    return model
 
 def replay_slda_v2(model, training_set, optimizer, batch_size, 
                    batch_loops, max_samples, replay_size, transform,
